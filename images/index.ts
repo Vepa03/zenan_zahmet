@@ -1,2 +1,2 @@
-import banner from './banner/banner_img.png';
+import banner from './banner/logo_web.png';
 export {banner};
