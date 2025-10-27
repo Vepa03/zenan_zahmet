@@ -19,7 +19,7 @@ const Logo = ({ className }: { className?: string }) => {
         <span
           className="text-black group-hover:text-green-700 transition-colors duration-300"
         >
-          Zahmeti
+          Zähmeti
         </span>
       </h2>
     </Link>

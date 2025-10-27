@@ -6,6 +6,7 @@ import SearchBar from './SearchBar'
 import FavoriteButton from './FavoriteButton'
 import SignIn from './SignIn'
 import MobileMenu from './MobileMenu'
+import { Language } from './Language'
 
 const Header = () => {
   return (
@@ -17,9 +18,12 @@ const Header = () => {
           
         </div>
         <HeaderMenu/>
-        <div className='w-auto md:w-1/3 flex items-center justify-end gap-5'>
+        <div className='w-auto md:w-1/3 flex items-center justify-end gap-3'>
             <SearchBar/>
             <FavoriteButton/>
+            <div className="hidden md:block">
+              <Language />
+            </div>
             <SignIn/>
         </div>
       </Container>

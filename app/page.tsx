@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button'
 import Container from '@/components/Container'
 import React from 'react'
+import HomeBanner from '@/components/HomeBanner'
 
 const Home = () => {
   return (
-    <Container className='p-4 bg-shop_light_pink'>
-      <h1>dewfew</h1>
-      <Button>SignIn</Button>
+    <Container className='p-4'>
+      <HomeBanner/>
     </Container>
   )
 }
