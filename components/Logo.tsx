@@ -6,7 +6,7 @@ const Logo = ({ className }: { className?: string }) => {
   return (
     <Link
       href="/"
-      className="group hoverEffect"  // 🔹 group ekledik
+      className="group hoverEffect inline-flex"  // 🔹 group ekledik
     >
       <h2
         className={cn(

@@ -7,3 +7,18 @@ export const headerData = [
     {title: "Contact", href: "/contact"},
     {title: "FAQ", href: "/faq"}
 ];
+
+export const quickLinksData = [
+    {title: "About us", href: "/about"},
+    {title: "Contact us", href: "/contact"},
+    {title: "FAQ", href: "/faq"},
+    {title: "Help", href: "/help"}
+]
+
+export const categoriesData = [
+    {title: "Electonics", href: "electronics"},
+    {title: "El ishleri", href: "handjob"},
+    {title: "Koynekler", href: "koynek"},
+    {title: "Yakalar", href: "yakalar"},
+    {title: "Others", href: "others"}
+]
