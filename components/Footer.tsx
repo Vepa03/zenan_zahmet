@@ -38,16 +38,24 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-          <div>
+          <div className='space-y-4'>
             <SubTitle>Mahabat</SubTitle>
             <SubText>
               Mahabat goshmak ucin biz bilen habarlash
             </SubText>
-            <form>
-              <Input placeholder='Enter your mail'/>
-              <Button>Habarlash</Button>
+            <form className='space-y-3'>
+              <Input placeholder='Enter your mail' type='email' required/>
+              <Button className='w-full'>Habarlash</Button>
             </form>
           </div>
+        </div>
+        <div className='py-6 border-t text-center text-sm text-gray-600'>
+          <p>
+            @ {new Date().getFullYear()}{" "}
+            <Logo className='text-sm'/>
+            . All right reserved
+          </p>
+
         </div>
       </Container>
     </footer>
