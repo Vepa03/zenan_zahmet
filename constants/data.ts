@@ -13,7 +13,7 @@ export const quickLinksData = [
     {title: "Contact us", href: "/contact"},
     {title: "FAQ", href: "/faq"},
     {title: "Help", href: "/help"}
-]
+];
 
 export const categoriesData = [
     {title: "Electonics", href: "electronics"},
@@ -21,4 +21,11 @@ export const categoriesData = [
     {title: "Koynekler", href: "koynek"},
     {title: "Yakalar", href: "yakalar"},
     {title: "Others", href: "others"}
-]
+];
+
+export const productType = [
+    {title: "Gadget", value: "gadget"},
+    {title: "Appliances", value: 'appliances'},
+    {title: "Refrigerator", value: 'refrigerator'},
+    {title: "Others", value: 'others'}
+];
