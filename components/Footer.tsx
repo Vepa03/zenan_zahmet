@@ -49,13 +49,10 @@ const Footer = () => {
             </form>
           </div>
         </div>
-        <div className='py-6 border-t text-center text-sm text-gray-600'>
-          <p>
-            @ {new Date().getFullYear()}{" "}
-            <Logo className='text-sm'/>
-            . All right reserved
-          </p>
-
+        <div className='py-6 border-t text-center text-sm text-gray-600 flex items-center justify-center gap-1'>
+          <span>© {new Date().getFullYear()}</span>
+          <Logo className='text-sm' />
+          <span>. All rights reserved</span>
         </div>
       </Container>
     </footer>

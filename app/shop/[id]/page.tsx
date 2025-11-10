@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { products, Product } from "@/constants/product";
@@ -14,15 +14,22 @@ import {
 } from "lucide-react";
 
 type PageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default function ProductDetailPage({ params }: PageProps) {
   const router = useRouter();
-  const product = products.find((p) => p.id === params.id);
+
+  // Next 15 / React 19: params bir Promise, use ile çözüyoruz
+  const { id } = use(params);
+
+  // Debug
+  console.log("DETAIL params.id:", id);
+  console.log("DETAIL all ids:", products.map((p) => p.id));
+
+  const product: Product | undefined = products.find((p) => p.id === id);
 
   if (!product) {
-    // basit 404
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
         <div className="bg-white px-8 py-6 rounded-2xl shadow-sm text-center space-y-3">
@@ -59,7 +66,7 @@ export default function ProductDetailPage({ params }: PageProps) {
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-sm p-6 md:p-8 flex flex-col gap-8">
         {/* ÜST BLOK */}
         <div className="flex flex-col lg:flex-row gap-10">
-          {/* SOL: ANA GÖRSEL + THUMBNAIL */}
+          {/* SOL: ANA GÖRSEL + THUMBNAILS */}
           <div className="flex-1">
             <div className="relative w-full aspect-[4/3] border rounded-2xl bg-[#fafafa] flex items-center justify-center">
               <Image
@@ -76,8 +83,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 <button
                   key={img}
                   onClick={() => setSelectedImage(img)}
-                  className={`relative h-20 w-20 flex-shrink-0 border rounded-2xl bg-[#fafafa] overflow-hidden transition
-                  ${
+                  className={`relative h-20 w-20 flex-shrink-0 border rounded-2xl bg-[#fafafa] overflow-hidden transition ${
                     selectedImage === img
                       ? "ring-2 ring-emerald-600 border-transparent"
                       : "hover:border-emerald-600/70"
@@ -94,7 +100,7 @@ export default function ProductDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* SAĞ: BİLGİLER */}
+          {/* SAĞ: ÜRÜN BİLGİLERİ */}
           <div className="flex-1 flex flex-col gap-4">
             <h1 className="text-2xl md:text-3xl font-semibold leading-snug">
               {product.name}
@@ -114,6 +120,12 @@ export default function ProductDetailPage({ params }: PageProps) {
                   </span>
                 ))}
               </div>
+              <span className="font-medium text-slate-800">
+                {product.rating}
+              </span>
+              <span className="text-slate-400">
+                ({product.reviewCount} Reviews)
+              </span>
             </div>
 
             {/* Price */}
@@ -131,11 +143,11 @@ export default function ProductDetailPage({ params }: PageProps) {
             {/* Stock */}
             {product.inStock > 0 && (
               <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700">
-                ● In Stock
+                ● In Stock ({product.inStock})
               </span>
             )}
 
-            {/* Buttons */}
+            {/* Ana Butonlar */}
             <div className="mt-2 flex items-center gap-3">
               {buttons.addToCart && (
                 <button className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-2xl bg-emerald-700 text-white text-sm font-semibold shadow-sm hover:bg-emerald-800 transition">
@@ -182,7 +194,7 @@ export default function ProductDetailPage({ params }: PageProps) {
 
         {/* ALT BLOK */}
         <div className="border-t pt-6 flex flex-col md:flex-row gap-8 text-sm">
-          {/* Features */}
+          {/* Özellikler */}
           <div className="flex-1">
             {product.features && product.features.length > 0 && (
               <>
@@ -191,10 +203,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 </p>
                 <ul className="space-y-1 text-slate-600">
                   {product.features.map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-start gap-2"
-                    >
+                    <li key={f} className="flex items-start gap-2">
                       <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-600" />
                       <span>{f}</span>
                     </li>
@@ -204,7 +213,7 @@ export default function ProductDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Delivery */}
+          {/* Delivery / Return */}
           <div className="w-full md:w-64 space-y-4">
             <div className="flex gap-3 items-start">
               <Truck className="w-5 h-5 mt-0.5" />
@@ -223,8 +232,7 @@ export default function ProductDetailPage({ params }: PageProps) {
               <div>
                 <div className="font-semibold">Return Delivery</div>
                 <p className="text-xs text-slate-500">
-                  {product.delivery?.returnPolicy ??
-                    "Free 30 days Delivery Returns."}
+                  {product.delivery?.returnPolicy ?? "30 days Delivery Returns."}
                 </p>
               </div>
             </div>

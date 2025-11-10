@@ -20,8 +20,8 @@ export type Product = {
   name: string;
   category: string;
   brand: string;
-  image: string; // ana görsel (card için)
-  images?: string[]; // detay için galeri
+  image: string;
+  images?: string[];
   price: number;
   oldPrice?: number;
   currency: string;
@@ -30,7 +30,6 @@ export type Product = {
   reviewCount: number;
   isHot?: boolean;
   onSale?: boolean;
-  // detay sayfası için opsiyonel
   description?: string;
   features?: string[];
   delivery?: DeliveryInfo;
@@ -70,7 +69,7 @@ export const products: Product[] = [
     name: '43" Class TU7000 Series 4K UHD Smart TV',
     category: "Television",
     brand: "Hi-Tech Limited",
-    image: "/products/tv-1.png",
+    image: "/products/surat.png",
     price: 1599.0,
     oldPrice: 1678.95,
     currency: "USD",
@@ -84,7 +83,7 @@ export const products: Product[] = [
     name: "Apple AirPods 3rd generation",
     category: "Airbuds",
     brand: "The Apple Limited",
-    image: "/products/airpods-3.png",
+    image: "/products/surat.png",
     price: 1700.0,
     oldPrice: 1870.0,
     currency: "USD",
@@ -98,7 +97,7 @@ export const products: Product[] = [
     name: "Apple AirPods Max",
     category: "Airbuds",
     brand: "The Apple Limited",
-    image: "/products/airpods-max.png",
+    image: "/products/surat.png",
     price: 699.0,
     oldPrice: 768.9,
     currency: "USD",
@@ -112,7 +111,7 @@ export const products: Product[] = [
     name: "Apple Mac Mini M4 Chip",
     category: "Gadget Accessories",
     brand: "The Apple Limited",
-    image: "/products/mac-mini.png",
+    image: "/products/surat.png",
     price: 600.0,
     oldPrice: 660.0,
     currency: "USD",
@@ -126,7 +125,7 @@ export const products: Product[] = [
     name: "Smart Watch X Pro",
     category: "Smart Watches",
     brand: "Huawei Company",
-    image: "/products/watch-1.png",
+    image: "/products/surat.png",
     price: 299.0,
     oldPrice: 349.0,
     currency: "USD",
@@ -140,7 +139,7 @@ export const products: Product[] = [
     name: "Smart Watch Active",
     category: "Smart Watches",
     brand: "Sony Limited",
-    image: "/products/watch-2.png",
+    image: "/products/surat.png",
     price: 259.0,
     oldPrice: 310.0,
     currency: "USD",
@@ -154,7 +153,7 @@ export const products: Product[] = [
     name: "Double Door Refrigerator 380L",
     category: "Refrigerators",
     brand: "The Hitachi Limited",
-    image: "/products/fridge-1.png",
+    image: "/products/surat.png",
     price: 899.0,
     oldPrice: 999.0,
     currency: "USD",
@@ -168,13 +167,13 @@ export const products: Product[] = [
     name: "Canon EOS 250D 24.1MP Full HD WI-FI DSLR Camera with 18–55mm",
     category: "Cameras",
     brand: "Hi-Tech Limited",
-    image: "/products/canon-eos-250d-main.jpg",
+    image: "/products/surat.png",
     images: [
-      "/products/canon-eos-250d-main.jpg",
-      "/products/speaker-red.jpg",
-      "/products/echo-dot.jpg",
-      "/products/camera-kit.jpg",
-      "/products/iphone-red.jpg",
+      "/products/surat.png",
+      "/products/surat.png",
+      "/products/surat.png",
+      "/products/surat.png",
+      "/products/surat.png",
     ],
     price: 750.0,
     oldPrice: 810.0,
