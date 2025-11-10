@@ -1,43 +1,54 @@
-import React from 'react'
+"use client";
+
+import React from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
 
-const page = () => {
+const Page = () => {
+  const faqs = [
+    {
+      id: "1",
+      question: "Is it accessible?",
+      answer: "Yes. It adheres to the WAI-ARIA design pattern.",
+    },
+    {
+      id: "2",
+      question: "Can I use it in my project?",
+      answer: "Absolutely! It's easy to integrate and customize.",
+    },
+    {
+      id: "3",
+      question: "Does it support keyboard navigation?",
+      answer: "Yes, it supports keyboard navigation out of the box.",
+    },
+    {
+      id: "4",
+      question: "Is it responsive?",
+      answer: "Yes, it works seamlessly across all devices.",
+    },
+  ];
+
   return (
-    <div className='w-auto md:w-1/3 '>
+    <div className="min-h-screen flex justify-center items-start pt-16 bg-white">
+      <div className="w-full max-w-md">
+        <h1 className="text-2xl font-semibold mb-6 text-gray-900">
+          Frequently Asked Questions
+        </h1>
         <Accordion type="single" collapsible>
-        <AccordionItem value="item-1">
-            <AccordionTrigger>Is it accessible?</AccordionTrigger>
-            <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-            </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-2">
-            <AccordionTrigger>Is it accessible?</AccordionTrigger>
-            <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-            </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-3">
-            <AccordionTrigger>Is it accessible?</AccordionTrigger>
-            <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-            </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-4">
-            <AccordionTrigger>Is it accessible?</AccordionTrigger>
-            <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-            </AccordionContent>
-        </AccordionItem>
+          {faqs.map((faq) => (
+            <AccordionItem key={faq.id} value={faq.id}>
+              <AccordionTrigger>{faq.question}</AccordionTrigger>
+              <AccordionContent>{faq.answer}</AccordionContent>
+            </AccordionItem>
+          ))}
         </Accordion>
-      
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default Page;
