@@ -37,38 +37,24 @@ export type Product = {
 };
 
 export const productCategories: string[] = [
-  "Kitchen Appliances",
-  "Television",
-  "Refrigerators",
-  "Washing Machine",
-  "Tablets",
-  "Gadget Accessories",
-  "Appliances",
-  "Air Conditioners",
-  "Airbuds",
-  "Cameras",
-  "Smartphones",
-  "Mobiles",
-  "Smart Watches",
+  "El işleri",
+  "Köýnekler",
+  "Matalar",
+  "Ýakalar",
+  "Tahýalar",
 ];
 
 export const brands: string[] = [
-  "Hi-Tech Limited",
-  "hp Limited",
-  "The Apple Limited",
-  "A4 Tech",
-  "The Hitachi Limited",
-  "Huawei Company",
-  "IKEA Limited",
-  "Sony Limited",
+  "gyz",
+  "oglan"
 ];
 
 export const products: Product[] = [
   {
     id: "tv-1",
     name: '43" Class TU7000 Series 4K UHD Smart TV',
-    category: "Television",
-    brand: "Hi-Tech Limited",
+    category: "El işleri",
+    brand: "gyz",
     image: "/products/surat.png",
     price: 1599.0,
     oldPrice: 1678.95,
@@ -81,8 +67,8 @@ export const products: Product[] = [
   {
     id: "airpods-3",
     name: "Apple AirPods 3rd generation",
-    category: "Airbuds",
-    brand: "The Apple Limited",
+    category: "El işleri",
+    brand: "gyz",
     image: "/products/surat.png",
     price: 1700.0,
     oldPrice: 1870.0,
@@ -95,8 +81,8 @@ export const products: Product[] = [
   {
     id: "airpods-max",
     name: "Apple AirPods Max",
-    category: "Airbuds",
-    brand: "The Apple Limited",
+    category: "Köýnekler",
+    brand: "oglan",
     image: "/products/surat.png",
     price: 699.0,
     oldPrice: 768.9,
@@ -109,8 +95,8 @@ export const products: Product[] = [
   {
     id: "mac-mini",
     name: "Apple Mac Mini M4 Chip",
-    category: "Gadget Accessories",
-    brand: "The Apple Limited",
+    category: "Köýnekler",
+    brand: "oglan",
     image: "/products/surat.png",
     price: 600.0,
     oldPrice: 660.0,
@@ -123,8 +109,8 @@ export const products: Product[] = [
   {
     id: "watch-1",
     name: "Smart Watch X Pro",
-    category: "Smart Watches",
-    brand: "Huawei Company",
+    category: "Matalar",
+    brand: "gyz",
     image: "/products/surat.png",
     price: 299.0,
     oldPrice: 349.0,
@@ -137,8 +123,8 @@ export const products: Product[] = [
   {
     id: "watch-2",
     name: "Smart Watch Active",
-    category: "Smart Watches",
-    brand: "Sony Limited",
+    category: "Matalar",
+    brand: "gyz",
     image: "/products/surat.png",
     price: 259.0,
     oldPrice: 310.0,
@@ -151,8 +137,8 @@ export const products: Product[] = [
   {
     id: "fridge-1",
     name: "Double Door Refrigerator 380L",
-    category: "Refrigerators",
-    brand: "The Hitachi Limited",
+    category: "Tahýalar",
+    brand: "oglan",
     image: "/products/surat.png",
     price: 899.0,
     oldPrice: 999.0,
@@ -165,8 +151,8 @@ export const products: Product[] = [
   {
     id: "camera-250d",
     name: "Canon EOS 250D 24.1MP Full HD WI-FI DSLR Camera with 18–55mm",
-    category: "Cameras",
-    brand: "Hi-Tech Limited",
+    category: "Tahýalar",
+    brand: "oglan",
     image: "/products/surat.png",
     images: [
       "/products/surat.png",

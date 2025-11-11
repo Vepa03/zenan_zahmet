@@ -50,7 +50,7 @@ const ShopPage = () => {
           {/* Sidebar */}
           <aside className="hidden md:block w-64 bg-white rounded-3xl shadow-sm p-5 space-y-6">
             <div>
-              <h2 className="font-semibold mb-3">Product Categories</h2>
+              <h2 className="font-semibold mb-3">Kategoriýalar</h2>
               <div className="space-y-2 text-sm text-slate-700 max-h-64 overflow-y-auto pr-1">
                 {productCategories.map((cat) => (
                   <label
@@ -70,7 +70,7 @@ const ShopPage = () => {
             </div>
 
             <div>
-              <h2 className="font-semibold mb-3">Brands</h2>
+              <h2 className="font-semibold mb-3">Jynsy</h2>
               <div className="space-y-2 text-sm text-slate-700 max-h-56 overflow-y-auto pr-1">
                 {brands.map((brand) => (
                   <label
@@ -99,19 +99,7 @@ const ShopPage = () => {
                   className="bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col border border-slate-100"
                 >
                   <div className="flex items-center justify-between px-3 pt-3">
-                    <div>
-                      {product.isHot && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] rounded-full bg-orange-50 text-orange-500 font-semibold">
-                          <Flame className="w-3 h-3" />
-                          Hot
-                        </span>
-                      )}
-                      {product.onSale && !product.isHot && (
-                        <span className="inline-flex items-center px-2 py-1 text-[10px] rounded-full bg-emerald-50 text-emerald-600 font-semibold">
-                          Sale!
-                        </span>
-                      )}
-                    </div>
+                    
                     <button className="h-8 w-8 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:text-emerald-600 hover:border-emerald-600 transition">
                       <Heart className="w-4 h-4" />
                     </button>
@@ -139,19 +127,6 @@ const ShopPage = () => {
                         {product.name}
                       </h3>
 
-                      <div className="flex items-center gap-1 text-[10px] mt-1">
-                        <span className="text-emerald-500">★★★★★</span>
-                        <span className="text-slate-500">
-                          {product.reviewCount} Reviews
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-[11px] mt-1">
-                        <span className="text-slate-500">In Stock</span>
-                        <span className="font-semibold text-slate-800">
-                          {product.inStock}
-                        </span>
-                      </div>
 
                       <div className="flex items-baseline gap-2 mt-1">
                         <span className="text-[17px] font-semibold text-emerald-700">
@@ -165,13 +140,6 @@ const ShopPage = () => {
                       </div>
                     </div>
                   </Link>
-
-                  <div className="px-4 pb-4">
-                    <button className="mt-1 flex items-center justify-center gap-2 w-full py-2 rounded-full bg-emerald-700 text-white text-xs font-semibold hover:bg-emerald-800 transition">
-                      <ShoppingCart className="w-4 h-4" />
-                      Add to Cart
-                    </button>
-                  </div>
                 </article>
               ))}
             </div>

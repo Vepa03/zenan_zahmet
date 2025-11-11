@@ -6,11 +6,7 @@ import { useRouter } from "next/navigation";
 import { products, Product } from "@/constants/product";
 import {
   Heart,
-  SlidersHorizontal,
-  MessageCircleQuestion,
-  Truck,
-  RefreshCw,
-  Share2,
+  Phone,
 } from "lucide-react";
 
 type PageProps = {
@@ -112,21 +108,6 @@ export default function ProductDetailPage({ params }: PageProps) {
             </p>
 
             {/* Rating */}
-            <div className="flex items-center gap-2 text-sm">
-              <div className="flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} className="text-emerald-500">
-                    ★
-                  </span>
-                ))}
-              </div>
-              <span className="font-medium text-slate-800">
-                {product.rating}
-              </span>
-              <span className="text-slate-400">
-                ({product.reviewCount} Reviews)
-              </span>
-            </div>
 
             {/* Price */}
             <div className="flex items-baseline gap-3">
@@ -140,12 +121,6 @@ export default function ProductDetailPage({ params }: PageProps) {
               )}
             </div>
 
-            {/* Stock */}
-            {product.inStock > 0 && (
-              <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700">
-                ● In Stock ({product.inStock})
-              </span>
-            )}
 
             {/* Ana Butonlar */}
             <div className="mt-2 flex items-center gap-3">
@@ -160,35 +135,15 @@ export default function ProductDetailPage({ params }: PageProps) {
                   <Heart className="w-5 h-5" />
                 </button>
               )}
+
+              {buttons.wishlist && (
+                <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 hover:border-emerald-600 hover:text-emerald-600 transition">
+                  <Phone className="w-5 h-5" />
+                </button>
+              )}
             </div>
 
-            {/* Secondary actions */}
-            <div className="mt-4 flex flex-wrap gap-6 text-xs text-slate-600">
-              {buttons.compareColor && (
-                <button className="inline-flex items-center gap-2 hover:text-emerald-600">
-                  <SlidersHorizontal className="w-4 h-4" />
-                  Compare color
-                </button>
-              )}
-              {buttons.askQuestion && (
-                <button className="inline-flex items-center gap-2 hover:text-emerald-600">
-                  <MessageCircleQuestion className="w-4 h-4" />
-                  Ask a question
-                </button>
-              )}
-              {buttons.deliveryReturnInfo && (
-                <button className="inline-flex items-center gap-2 hover:text-emerald-600">
-                  <Truck className="w-4 h-4" />
-                  Delivery & Return
-                </button>
-              )}
-              {buttons.share && (
-                <button className="inline-flex items-center gap-2 hover:text-emerald-600">
-                  <Share2 className="w-4 h-4" />
-                  Share
-                </button>
-              )}
-            </div>
+            
           </div>
         </div>
 
@@ -213,30 +168,7 @@ export default function ProductDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Delivery / Return */}
-          <div className="w-full md:w-64 space-y-4">
-            <div className="flex gap-3 items-start">
-              <Truck className="w-5 h-5 mt-0.5" />
-              <div>
-                <div className="font-semibold">Free Delivery</div>
-                <p className="text-xs text-slate-500">
-                  {product.delivery?.freeDelivery
-                    ? "Enter your Postal code for Delivery Availability."
-                    : "Delivery cost is calculated at checkout."}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3 items-start">
-              <RefreshCw className="w-5 h-5 mt-0.5" />
-              <div>
-                <div className="font-semibold">Return Delivery</div>
-                <p className="text-xs text-slate-500">
-                  {product.delivery?.returnPolicy ?? "30 days Delivery Returns."}
-                </p>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>
