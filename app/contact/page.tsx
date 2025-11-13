@@ -20,7 +20,7 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen bg-white flex justify-center">
-      <div className="w-full max-w-5xl px-6 md:px-10 pt-20">
+      <div className="w-full max-w-5xl px-6 md:px-10 pt-10">
         {/* Başlık */}
         <h1 className="text-3xl md:text-4xl font-semibold text-[#111827]">
           Contact Us
@@ -31,7 +31,7 @@ const ContactPage = () => {
         </p>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="mt-10 space-y-6 max-w-4xl">
+        <form onSubmit={handleSubmit} className="mt-5 space-y-6 max-w-4xl">
           {/* Name */}
           <div className="space-y-2">
             <label
@@ -68,7 +68,7 @@ const ContactPage = () => {
           </div>
 
           {/* Message */}
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label
               htmlFor="message"
               className="block text-sm font-medium text-[#111827]"

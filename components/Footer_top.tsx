@@ -9,21 +9,21 @@ interface ContactItemData {
 
 const data: ContactItemData[] = [
   {
-    title: "Call Us",
+    title: "Jaň et",
     subtitle: "+993 65 345687",
     icon: (
       <Phone className="h-6 w-6 text-gray-600 group-hover:text-primary transition-colors" />
     ),
   },
   {
-    title: "Working Hours",
+    title: "Iş wagtymyz",
     subtitle: "Mon - Sat",
     icon: (
       <Clock className="h-6 w-6 text-gray-600 group-hover:text-primary transition-colors" />
     ),
   },
   {
-    title: "Email Us",
+    title: "Poçta salgymyz",
     subtitle: "zenanzahmeti@gmail.com",
     icon: (
       <Mail className="h-6 w-6 text-gray-600 group-hover:text-primary transition-colors" />

@@ -27,7 +27,7 @@ const SubTitle = ({
 })=>{
     return (
         <h3 className={cn(
-            "font-semibold text-gray-900 font-sans", 
+            "font-bold text-gray-900 font-sans", 
             className)}
         >
             {children}

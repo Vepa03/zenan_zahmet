@@ -3,24 +3,22 @@ import { title } from "process";
 export const headerData = [
     {title: "Home", href: "/"},
     {title: "Shop", href: "/shop"},
-    {title: "Blog", href: "/blog"},
     {title: "Contact", href: "/contact"},
     {title: "FAQ", href: "/faq"}
 ];
 
 export const quickLinksData = [
-    {title: "About us", href: "/about"},
-    {title: "Contact us", href: "/contact"},
-    {title: "FAQ", href: "/faq"},
-    {title: "Help", href: "/help"}
+    {title: "Biz hakynda", href: "/about"},
+    {title: "Habarlaş", href: "/contact"},
+    {title: "Sorag we Jogap", href: "/faq"},
+    {title: "Kömek", href: "/help"}
 ];
 
 export const categoriesData = [
-    {title: "Electonics", href: "electronics"},
-    {title: "El ishleri", href: "handjob"},
-    {title: "Koynekler", href: "koynek"},
-    {title: "Yakalar", href: "yakalar"},
-    {title: "Others", href: "others"}
+    {title: "El işleri", href: "electronics"},
+    {title: "Ýakalar", href: "handjob"},
+    {title: "Köýnekler", href: "koynek"},
+    {title: "Tahýalar", href: "yakalar"},
 ];
 
 export const productType = [
