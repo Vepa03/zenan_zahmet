@@ -29,7 +29,7 @@ const HomeBanner = () => {
               className="bg-shop_btn_dark_green/90 text-white/90 font-semibold py-2 px-5 rounded-md text-sm hover:text-white hover:bg-shop_btn_dark_green hoverEffect">
               Satyn Al
             </Link>
-            <Link href="/shop"
+            <Link href="/advertisement"
               className="bg-white text-black font-semibold py-2 px-5 rounded-md text-sm hoverEffect">
               Mahabat Goş
             </Link>

@@ -34,6 +34,7 @@ export type Product = {
   features?: string[];
   delivery?: DeliveryInfo;
   buttons?: ProductButtons;
+  phone?: number; 
 };
 
 export const productCategories: string[] = [
@@ -63,6 +64,7 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 5,
     isHot: true,
+    phone: +99361831001,
   },
   {
     id: "airpods-3",
@@ -77,6 +79,7 @@ export const products: Product[] = [
     rating: 4.9,
     reviewCount: 5,
     isHot: true,
+    phone: +99361831001,
   },
   {
     id: "airpods-max",
@@ -91,6 +94,7 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 5,
     isHot: true,
+    phone: +99361831001,
   },
   {
     id: "mac-mini",
@@ -105,6 +109,7 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 5,
     isHot: true,
+    phone: +99361831001,
   },
   {
     id: "watch-1",
@@ -119,6 +124,7 @@ export const products: Product[] = [
     rating: 4.6,
     reviewCount: 18,
     onSale: true,
+    phone: +99361831001,
   },
   {
     id: "watch-2",
@@ -133,6 +139,7 @@ export const products: Product[] = [
     rating: 4.5,
     reviewCount: 12,
     onSale: true,
+    phone: +99361831001,
   },
   {
     id: "fridge-1",
@@ -147,6 +154,7 @@ export const products: Product[] = [
     rating: 4.4,
     reviewCount: 9,
     onSale: true,
+    phone: +99361831001,
   },
   {
     id: "camera-250d",
@@ -168,6 +176,7 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 120,
     onSale: true,
+    phone: +99361831001,
     description:
       "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex unde illum expedita dolores aut nostrum, quidem placeat laborum nemo, beatae perspiciatis quae, sint tempore aliquid molestiae consequatur eum earum.",
     features: [

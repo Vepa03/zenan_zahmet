@@ -1,16 +1,15 @@
+// app/shop/[id]/page.tsx
 "use client";
 
 import { use, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { products, Product } from "@/constants/product";
-import {
-  Heart,
-  Phone,
-} from "lucide-react";
+import { Product } from "@/constants/product";
+import { useProductsStore } from "@/constants/useProductsStore";
+import { Heart, Phone } from "lucide-react";
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>; // Next 15 pattern
 };
 
 export default function ProductDetailPage({ params }: PageProps) {
@@ -19,11 +18,10 @@ export default function ProductDetailPage({ params }: PageProps) {
   // Next 15 / React 19: params bir Promise, use ile çözüyoruz
   const { id } = use(params);
 
-  // Debug
-  console.log("DETAIL params.id:", id);
-  console.log("DETAIL all ids:", products.map((p) => p.id));
-
-  const product: Product | undefined = products.find((p) => p.id === id);
+  // Ürünü STORE'dan buluyoruz (artık admin'den eklenenler de burada)
+  const product: Product | undefined = useProductsStore((state) =>
+    state.products.find((p) => p.id === id)
+  );
 
   if (!product) {
     return (
@@ -41,6 +39,7 @@ export default function ProductDetailPage({ params }: PageProps) {
     );
   }
 
+  // Galeri: varsa product.images, yoksa sadece product.image
   const gallery: string[] =
     product.images && product.images.length > 0
       ? product.images
@@ -69,6 +68,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 src={selectedImage}
                 alt={product.name}
                 fill
+                unoptimized
                 className="object-contain p-6"
                 priority
               />
@@ -85,10 +85,12 @@ export default function ProductDetailPage({ params }: PageProps) {
                       : "hover:border-emerald-600/70"
                   }`}
                 >
+                  {/* küçükler için de Image kullanıyoruz ama istersen <img> yapabilirsin */}
                   <Image
                     src={img}
                     alt={product.name}
                     fill
+                    unoptimized
                     className="object-contain p-2"
                   />
                 </button>
@@ -107,9 +109,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 "High-quality product with modern design and reliable performance."}
             </p>
 
-            {/* Rating */}
-
-            {/* Price */}
+            {/* Fiyat */}
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-semibold text-emerald-700">
                 ${product.price.toFixed(2)}
@@ -121,6 +121,18 @@ export default function ProductDetailPage({ params }: PageProps) {
               )}
             </div>
 
+            {/* Brand / stok */}
+            <div className="text-xs text-slate-500">
+              Brand:{" "}
+              <span className="font-medium">{product.brand}</span>
+              {product.inStock !== undefined && (
+                <>
+                  {" • "}
+                  In stock:{" "}
+                  <span className="font-medium">{product.inStock}</span>
+                </>
+              )}
+            </div>
 
             {/* Ana Butonlar */}
             <div className="mt-2 flex items-center gap-3">
@@ -137,13 +149,12 @@ export default function ProductDetailPage({ params }: PageProps) {
               )}
 
               {buttons.wishlist && (
-                <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 hover:border-emerald-600 hover:text-emerald-600 transition">
+                <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 hover:border-emerald-600 hover:text-emerald-600 transition" >
+                  <a></a>
                   <Phone className="w-5 h-5" />
                 </button>
               )}
             </div>
-
-            
           </div>
         </div>
 
@@ -167,8 +178,6 @@ export default function ProductDetailPage({ params }: PageProps) {
               </>
             )}
           </div>
-
-          
         </div>
       </div>
     </div>
