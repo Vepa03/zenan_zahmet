@@ -8,6 +8,7 @@ import {
   productCategories,
   brands,
   Product,
+  place_names,
 } from "@/constants/product";
 import { useProductsStore } from "@/constants/useProductsStore";
 import { Heart } from "lucide-react";
@@ -17,6 +18,7 @@ const ShopPage = () => {
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const toggleInArray = (arr: string[], value: string): string[] =>
@@ -30,17 +32,30 @@ const ShopPage = () => {
     setSelectedBrands((prev) => toggleInArray(prev, brand));
   };
 
+  const handlePlaceChange = (place: string) => {
+    setSelectedPlaces((prev) => toggleInArray(prev, place));
+  };
+
   const filteredProducts: Product[] = useMemo(
     () =>
       products.filter((p) => {
         const byCategory =
           selectedCategories.length === 0 ||
           selectedCategories.includes(p.category);
+
         const byBrand =
           selectedBrands.length === 0 || selectedBrands.includes(p.brand);
-        return byCategory && byBrand;
+
+        // p.place: string[] | undefined
+        const byPlace =
+          selectedPlaces.length === 0 ||
+          (p.place
+            ? p.place.some((pl) => selectedPlaces.includes(pl))
+            : false);
+
+        return byCategory && byBrand && byPlace;
       }),
-    [products, selectedCategories, selectedBrands]
+    [products, selectedCategories, selectedBrands, selectedPlaces]
   );
 
   return (
@@ -64,6 +79,7 @@ const ShopPage = () => {
 
           {isMobileFiltersOpen && (
             <div className="mt-3 bg-white rounded-3xl shadow-sm p-4 space-y-6">
+              {/* Kategori mobil */}
               <div>
                 <h2 className="font-semibold mb-3 text-sm">Kategoriýalar</h2>
                 <div className="space-y-2 text-sm text-slate-700 max-h-48 overflow-y-auto pr-1">
@@ -84,6 +100,7 @@ const ShopPage = () => {
                 </div>
               </div>
 
+              {/* Marka mobil */}
               <div>
                 <h2 className="font-semibold mb-3 text-sm">Jynsy</h2>
                 <div className="space-y-2 text-sm text-slate-700 max-h-48 overflow-y-auto pr-1">
@@ -103,6 +120,27 @@ const ShopPage = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Yer mobil */}
+              <div>
+                <h2 className="font-semibold mb-3 text-sm">Ýer</h2>
+                <div className="space-y-2 text-sm text-slate-700 max-h-48 overflow-y-auto pr-1">
+                  {place_names.map((place) => (
+                    <label
+                      key={place}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                        checked={selectedPlaces.includes(place)}
+                        onChange={() => handlePlaceChange(place)}
+                      />
+                      <span>{place}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -110,6 +148,7 @@ const ShopPage = () => {
         <div className="flex gap-6 items-start">
           {/* Sidebar – sadece md ve üstü */}
           <aside className="hidden md:block w-64 bg-white rounded-3xl shadow-sm p-5 space-y-6">
+            {/* Kategori desktop */}
             <div>
               <h2 className="font-semibold mb-3">Kategoriýalar</h2>
               <div className="space-y-2 text-sm text-slate-700 max-h-64 overflow-y-auto pr-1">
@@ -130,6 +169,7 @@ const ShopPage = () => {
               </div>
             </div>
 
+            {/* Marka desktop */}
             <div>
               <h2 className="font-semibold mb-3">Jynsy</h2>
               <div className="space-y-2 text-sm text-slate-700 max-h-56 overflow-y-auto pr-1">
@@ -145,6 +185,27 @@ const ShopPage = () => {
                       onChange={() => handleBrandChange(brand)}
                     />
                     <span>{brand}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Yer desktop */}
+            <div>
+              <h2 className="font-semibold mb-3">Ýer</h2>
+              <div className="space-y-2 text-sm text-slate-700 max-h-56 overflow-y-auto pr-1">
+                {place_names.map((place) => (
+                  <label
+                    key={place}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                      checked={selectedPlaces.includes(place)}
+                      onChange={() => handlePlaceChange(place)}
+                    />
+                    <span>{place}</span>
                   </label>
                 ))}
               </div>
@@ -189,11 +250,11 @@ const ShopPage = () => {
 
                       <div className="flex items-baseline gap-2 mt-1">
                         <span className="text-[17px] font-semibold text-emerald-700">
-                          ${product.price.toFixed(2)}
+                          {product.price.toFixed(2)} TM
                         </span>
                         {product.oldPrice && (
                           <span className="text-[11px] text-slate-400 line-through">
-                            ${product.oldPrice.toFixed(2)}
+                            {product.oldPrice.toFixed(2)} TM
                           </span>
                         )}
                       </div>

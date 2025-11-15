@@ -6,6 +6,7 @@ import {
   productCategories,
   brands,
   Product,
+  place_names,
 } from "@/constants/product";
 import { useProductsStore } from "@/constants/useProductsStore";
 import { Trash2, Edit3 } from "lucide-react";
@@ -33,23 +34,25 @@ const AdminPage = () => {
   const { products, addProduct, updateProduct, deleteProduct } =
     useProductsStore();
 
-  // Yeni ürün formu
+  // Yeni ürün formu – place string olarak tutuluyor (tek seçim)
   const [form, setForm] = useState({
     name: "",
     category: productCategories[0] ?? "",
     brand: brands[0] ?? "",
+    place: place_names[0] ?? "",
     price: "",
     oldPrice: "",
     description: "",
     images: [] as string[],
   });
 
-  // Edit
+  // Edit formu – yine place string
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     name: "",
     category: "",
     brand: "",
+    place: "",
     price: "",
     oldPrice: "",
     description: "",
@@ -59,9 +62,9 @@ const AdminPage = () => {
   // ---------- ortak input handler ----------
   const handleFormChange = (
     e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
-      | React.ChangeEvent<HTMLSelectElement>,
+      | ChangeEvent<HTMLInputElement>
+      | ChangeEvent<HTMLTextAreaElement>
+      | ChangeEvent<HTMLSelectElement>,
     isEdit = false
   ) => {
     const { name, value } = e.target;
@@ -128,6 +131,8 @@ const AdminPage = () => {
       name: form.name,
       category: form.category || productCategories[0],
       brand: form.brand || brands[0],
+      // Product.place: string[]  🔥
+      place: [form.place || place_names[0]],
       image: mainImage,
       images: form.images.length > 1 ? form.images : undefined,
       price: Number(form.price),
@@ -145,6 +150,7 @@ const AdminPage = () => {
       name: "",
       category: productCategories[0] ?? "",
       brand: brands[0] ?? "",
+      place: place_names[0] ?? "",
       price: "",
       oldPrice: "",
       description: "",
@@ -159,6 +165,8 @@ const AdminPage = () => {
       name: p.name,
       category: p.category,
       brand: p.brand,
+      // p.place: string[] | undefined → ilk elemanı alıyoruz
+      place: p.place?.[0] ?? "",
       price: String(p.price),
       oldPrice: p.oldPrice ? String(p.oldPrice) : "",
       description: p.description ?? "",
@@ -177,6 +185,8 @@ const AdminPage = () => {
       name: editForm.name,
       category: editForm.category,
       brand: editForm.brand,
+      // yine diziye çeviriyoruz
+      place: [editForm.place || place_names[0]],
       price: Number(editForm.price),
       oldPrice: editForm.oldPrice
         ? Number(editForm.oldPrice)
@@ -184,9 +194,7 @@ const AdminPage = () => {
       description: editForm.description || undefined,
       image: mainImage,
       images:
-        editForm.images.length > 1
-          ? editForm.images
-          : undefined,
+        editForm.images.length > 1 ? editForm.images : undefined,
     });
 
     setEditingId(null);
@@ -255,6 +263,22 @@ const AdminPage = () => {
               >
                 {brands.map((b) => (
                   <option key={b}>{b}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-1">
+                Place / Ýer
+              </label>
+              <select
+                name="place"
+                value={form.place}
+                onChange={(e) => handleFormChange(e)}
+                className="w-full border rounded-xl px-3 py-2 outline-none bg-white focus:ring-2 focus:ring-emerald-500"
+              >
+                {place_names.map((p) => (
+                  <option key={p}>{p}</option>
                 ))}
               </select>
             </div>
@@ -402,6 +426,22 @@ const AdminPage = () => {
 
               <div>
                 <label className="block text-xs font-medium mb-1">
+                  Place / Ýer
+                </label>
+                <select
+                  name="place"
+                  value={editForm.place}
+                  onChange={(e) => handleFormChange(e, true)}
+                  className="w-full border rounded-xl px-3 py-2 outline-none bg-white focus:ring-2 focus:ring-emerald-500"
+                >
+                  {place_names.map((p) => (
+                    <option key={p}>{p}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium mb-1">
                   Price
                 </label>
                 <input
@@ -517,9 +557,10 @@ const AdminPage = () => {
                 </div>
                 <div className="text-xs text-slate-500">
                   {p.category} • {p.brand}
+                  {p.place && ` • ${p.place.join(", ")}`}
                 </div>
                 <div className="font-bold text-emerald-700">
-                  ${p.price.toFixed(2)}
+                  {p.price.toFixed(2)} TM
                 </div>
                 <div className="flex gap-2 mt-1">
                   <button

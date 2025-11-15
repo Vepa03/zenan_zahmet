@@ -112,35 +112,23 @@ export default function ProductDetailPage({ params }: PageProps) {
             {/* Fiyat */}
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-semibold text-emerald-700">
-                ${product.price.toFixed(2)}
+                {product.price.toFixed(2)} TM
               </span>
               {product.oldPrice && (
                 <span className="text-base text-slate-400 line-through">
-                  ${product.oldPrice.toFixed(2)}
+                  {product.oldPrice.toFixed(2)} TM
                 </span>
               )}
             </div>
 
             {/* Brand / stok */}
             <div className="text-xs text-slate-500">
-              Brand:{" "}
+              Jynsy: {" "}
               <span className="font-medium">{product.brand}</span>
-              {product.inStock !== undefined && (
-                <>
-                  {" • "}
-                  In stock:{" "}
-                  <span className="font-medium">{product.inStock}</span>
-                </>
-              )}
             </div>
 
             {/* Ana Butonlar */}
             <div className="mt-2 flex items-center gap-3">
-              {buttons.addToCart && (
-                <button className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-2xl bg-emerald-700 text-white text-sm font-semibold shadow-sm hover:bg-emerald-800 transition">
-                  Add to Cart
-                </button>
-              )}
 
               {buttons.wishlist && (
                 <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 hover:border-emerald-600 hover:text-emerald-600 transition">
@@ -150,7 +138,6 @@ export default function ProductDetailPage({ params }: PageProps) {
 
               {buttons.wishlist && (
                 <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 hover:border-emerald-600 hover:text-emerald-600 transition" >
-                  <a></a>
                   <Phone className="w-5 h-5" />
                 </button>
               )}

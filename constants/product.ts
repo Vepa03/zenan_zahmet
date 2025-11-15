@@ -35,6 +35,7 @@ export type Product = {
   delivery?: DeliveryInfo;
   buttons?: ProductButtons;
   phone?: number; 
+  place?: string[];
 };
 
 export const productCategories: string[] = [
@@ -43,6 +44,15 @@ export const productCategories: string[] = [
   "Matalar",
   "Ýakalar",
   "Tahýalar",
+];
+
+export const place_names: string[] = [
+  "Mary",
+  "Balkan",
+  "Lebap",
+  "Ashgabat",
+  "Ahal",
+  "Dashoguz",
 ];
 
 export const brands: string[] = [
