@@ -1,6 +1,7 @@
-'use client'
+"use client"
 import Container from './Container'
-import React, { useState } from 'react'
+// useState ve useEffect import edildi
+import React, { useState, useEffect } from 'react' 
 import Logo from './Logo'
 import HeaderMenu from './HeaderMenu'
 import SearchBar from './SearchBar'
@@ -37,7 +38,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    // TypeScript'te useState'e tip verilir: string veya null
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -145,8 +145,16 @@ const Header = () => {
     // isModalOpen: Modalın açık/kapalı durumu.
     const [isModalOpen, setIsModalOpen] = useState(false);
     
-    // isLoggedIn: localStorage'da token olup olmadığını kontrol ederek oturum durumunu belirle.
-    const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('accessToken'));
+    // Hata düzeltildi: Başlangıç değeri false olmalı. Kontrol useEffect ile yapılacak.
+    const [isLoggedIn, setIsLoggedIn] = useState(false); 
+
+    // Bileşen yüklendiğinde (tarayıcıda) çalışır.
+    useEffect(() => {
+        // Bu kod sadece Client'ta (tarayıcıda) çalışır, SSR hatasını önler.
+        if (localStorage.getItem('accessToken')) {
+            setIsLoggedIn(true);
+        }
+    }, []); 
 
     // Giriş Başarılı Olduğunda Çalışır
     const handleLoginSuccess = () => {
