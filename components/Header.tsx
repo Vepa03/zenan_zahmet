@@ -34,7 +34,7 @@ interface AuthButtonProps {
  */
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
     // API adresi (önceki konuşmamızdan)
-    const LOGIN_URL = 'http://34.61.30.58:8001/auth/login';
+    const LOGIN_URL = '/api/auth/login';
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
