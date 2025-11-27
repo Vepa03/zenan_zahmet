@@ -1,21 +1,38 @@
-// app/shop/page.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react"; // useEffect eklendi
 import Image from "next/image";
 import Link from "next/link";
 import {
+  // productCategories, brands, place_names'i store dosyasından alalım
+  useProductsStore,
   productCategories,
   brands,
-  Product,
   place_names,
-} from "@/constants/product";
-import { useProductsStore } from "@/constants/useProductsStore";
-import { Heart } from "lucide-react";
+} from "@/constants/useProductsStore"; // useProductsStore'un tanımlı olduğu yer
+import { Product } from "@/constants/product"; // Product tipi eklendi
+import { Heart, Loader2 } from "lucide-react";
+
+// ShopPage komponentinizin geri kalanı...
 
 const ShopPage = () => {
+  // Store'dan ürünleri ve durumu çekiyoruz
   const products = useProductsStore((s) => s.products);
+  const isLoading = useProductsStore((s) => s.isLoading);
+  const error = useProductsStore((s) => s.error);
+  // Veri çekme fonksiyonu
+  const fetchProductsData = useProductsStore((s) => s.fetchProductsData); 
 
+  // --- useEffect: Veriyi ilk yüklemede çekme ---
+  useEffect(() => {
+    // Sadece products dizisi boşsa (yani ilk yüklemede) veriyi çek
+    if (products.length === 0 && !isLoading && !error) {
+      fetchProductsData();
+    }
+  }, [fetchProductsData, products.length, isLoading, error]);
+  // --- useEffect sonu ---
+
+  // ... (Geri kalan useState'ler ve filtreleme mantığı aynı kalır)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
@@ -36,6 +53,7 @@ const ShopPage = () => {
     setSelectedPlaces((prev) => toggleInArray(prev, place));
   };
 
+  // filteredProducts mantığı, API'den gelen veriye göre filtreleme yapar
   const filteredProducts: Product[] = useMemo(
     () =>
       products.filter((p) => {
@@ -46,7 +64,7 @@ const ShopPage = () => {
         const byBrand =
           selectedBrands.length === 0 || selectedBrands.includes(p.brand);
 
-        // p.place: string[] | undefined
+        // p.place: string[] | undefined (API'den geliyorsa)
         const byPlace =
           selectedPlaces.length === 0 ||
           (p.place
@@ -57,6 +75,89 @@ const ShopPage = () => {
       }),
     [products, selectedCategories, selectedBrands, selectedPlaces]
   );
+  
+  // ... (renderProductGrid fonksiyonu ve bileşen yapısı aynı kalır)
+  const renderProductGrid = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center py-20 text-slate-500">
+          <Loader2 className="w-8 h-8 mr-3 animate-spin" />
+          <span>Ürünler API'den yükleniyor...</span>
+        </div>
+      );
+    }
+    
+    if (error) {
+      return (
+        <div className="flex justify-center items-center py-20 text-red-600 bg-red-50 rounded-xl p-6 border border-red-200">
+          <p className="font-semibold">Hata Oluştu: </p>
+          <p className="ml-2 text-sm">{error}. Lütfen Next.js sunucunuzun (Proxy) ve API'nizin çalıştığından emin olun.</p>
+        </div>
+      );
+    }
+
+    if (filteredProducts.length === 0) {
+      return (
+        <div className="mt-10 text-center text-slate-500">
+          Seçilen filtrelere uygun ürün bulunamadı.
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {filteredProducts.map((product) => (
+          <article
+            key={product.id}
+            className="bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col border border-slate-100"
+          >
+            <div className="flex items-center justify-between px-3 pt-3">
+              <button className="h-8 w-8 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:text-emerald-600 hover:border-emerald-600 transition">
+                <Heart className="w-4 h-4" />
+              </button>
+            </div>
+
+            <Link
+              href={`/shop/${product.id}`}
+              className="flex-1 flex flex-col"
+            >
+              <div className="relative w-full aspect-[4/3] mt-1">
+                <Image
+                  // Product tipindeki "image" alanı kullanıldı
+                  src={product.image} 
+                  alt={product.title} 
+                  fill
+                  unoptimized
+                  className="object-contain p-4"
+                />
+              </div>
+
+              <div className="px-4 pb-2 flex flex-col gap-1 text-sm">
+                <p className="text-[10px] uppercase text-slate-400 tracking-widest">
+                  {product.category}
+                </p>
+                <h3 className="font-semibold text-slate-800 leading-snug line-clamp-2">
+                  {product.title}
+                </h3>
+
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-[17px] font-semibold text-emerald-700">
+                    {/* Fiyat düzeltildi: Price artık number olduğu için toFixed kullanılır */}
+                    {product.price.toFixed(2)} TM
+                  </span>
+                  {product.oldPrice && (
+                    <span className="text-[11px] text-slate-400 line-through">
+                      {product.oldPrice.toFixed(2)} TM
+                    </span>
+                  )}
+                </div>
+              </div>
+            </Link>
+          </article>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] py-8">
@@ -65,7 +166,7 @@ const ShopPage = () => {
           GET THE PRODUCTS AS YOUR NEEDS
         </h1>
 
-        {/* Mobil filtre butonu */}
+        {/* Mobil filtre butonu (aynı) */}
         <div className="md:hidden mb-4">
           <button
             onClick={() => setIsMobileFiltersOpen((prev) => !prev)}
@@ -79,7 +180,7 @@ const ShopPage = () => {
 
           {isMobileFiltersOpen && (
             <div className="mt-3 bg-white rounded-3xl shadow-sm p-4 space-y-6">
-              {/* Kategori mobil */}
+              {/* Kategori mobil (aynı) */}
               <div>
                 <h2 className="font-semibold mb-3 text-sm">Kategoriýalar</h2>
                 <div className="space-y-2 text-sm text-slate-700 max-h-48 overflow-y-auto pr-1">
@@ -100,7 +201,7 @@ const ShopPage = () => {
                 </div>
               </div>
 
-              {/* Marka mobil */}
+              {/* Marka mobil (aynı) */}
               <div>
                 <h2 className="font-semibold mb-3 text-sm">Jynsy</h2>
                 <div className="space-y-2 text-sm text-slate-700 max-h-48 overflow-y-auto pr-1">
@@ -121,7 +222,7 @@ const ShopPage = () => {
                 </div>
               </div>
 
-              {/* Yer mobil */}
+              {/* Yer mobil (aynı) */}
               <div>
                 <h2 className="font-semibold mb-3 text-sm">Ýer</h2>
                 <div className="space-y-2 text-sm text-slate-700 max-h-48 overflow-y-auto pr-1">
@@ -146,9 +247,9 @@ const ShopPage = () => {
         </div>
 
         <div className="flex gap-6 items-start">
-          {/* Sidebar – sadece md ve üstü */}
+          {/* Sidebar (aynı) */}
           <aside className="hidden md:block w-64 bg-white rounded-3xl shadow-sm p-5 space-y-6">
-            {/* Kategori desktop */}
+            {/* Kategori desktop (aynı) */}
             <div>
               <h2 className="font-semibold mb-3">Kategoriýalar</h2>
               <div className="space-y-2 text-sm text-slate-700 max-h-64 overflow-y-auto pr-1">
@@ -169,7 +270,7 @@ const ShopPage = () => {
               </div>
             </div>
 
-            {/* Marka desktop */}
+            {/* Marka desktop (aynı) */}
             <div>
               <h2 className="font-semibold mb-3">Jynsy</h2>
               <div className="space-y-2 text-sm text-slate-700 max-h-56 overflow-y-auto pr-1">
@@ -190,7 +291,7 @@ const ShopPage = () => {
               </div>
             </div>
 
-            {/* Yer desktop */}
+            {/* Yer desktop (aynı) */}
             <div>
               <h2 className="font-semibold mb-3">Ýer</h2>
               <div className="space-y-2 text-sm text-slate-700 max-h-56 overflow-y-auto pr-1">
@@ -214,61 +315,7 @@ const ShopPage = () => {
 
           {/* Grid */}
           <main className="flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {filteredProducts.map((product) => (
-                <article
-                  key={product.id}
-                  className="bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col border border-slate-100"
-                >
-                  <div className="flex items-center justify-between px-3 pt-3">
-                    <button className="h-8 w-8 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:text-emerald-600 hover:border-emerald-600 transition">
-                      <Heart className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <Link
-                    href={`/shop/${product.id}`}
-                    className="flex-1 flex flex-col"
-                  >
-                    <div className="relative w-full aspect-[4/3] mt-1">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        unoptimized
-                        className="object-contain p-4"
-                      />
-                    </div>
-
-                    <div className="px-4 pb-2 flex flex-col gap-1 text-sm">
-                      <p className="text-[10px] uppercase text-slate-400 tracking-widest">
-                        {product.category}
-                      </p>
-                      <h3 className="font-semibold text-slate-800 leading-snug line-clamp-2">
-                        {product.name}
-                      </h3>
-
-                      <div className="flex items-baseline gap-2 mt-1">
-                        <span className="text-[17px] font-semibold text-emerald-700">
-                          {product.price.toFixed(2)} TM
-                        </span>
-                        {product.oldPrice && (
-                          <span className="text-[11px] text-slate-400 line-through">
-                            {product.oldPrice.toFixed(2)} TM
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                </article>
-              ))}
-            </div>
-
-            {filteredProducts.length === 0 && (
-              <div className="mt-10 text-center text-slate-500">
-                No products match the selected filters.
-              </div>
-            )}
+            {renderProductGrid()}
           </main>
         </div>
       </div>

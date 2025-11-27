@@ -1,53 +1,85 @@
-// app/shop/[id]/page.tsx
 "use client";
 
-import { use, useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Product } from "@/constants/product";
+// Lütfen bu import yolunun projenizdeki Product tipinin yolunu doğru gösterdiğinden emin olun
+import { Product } from "@/constants/product"; 
 import { useProductsStore } from "@/constants/useProductsStore";
 import { Heart, Phone } from "lucide-react";
 
+// Hata Giderici Düzeltme 1: PageProps tanımı (params artık Promise değildir)
 type PageProps = {
-  params: Promise<{ id: string }>; // Next 15 pattern
+  params: { 
+    id: string; // URL segmentinden gelen ürün ID'si
+  }; 
 };
 
 export default function ProductDetailPage({ params }: PageProps) {
   const router = useRouter();
+  // Hata Giderici Düzeltme 2: ID'yi doğrudan params'tan alıyoruz (use() kaldırıldı)
+  const { id } = params; 
 
-  // Next 15 / React 19: params bir Promise, use ile çözüyoruz
-  const { id } = use(params);
+  // Zustand Store'dan ürünleri, yükleme durumunu ve veri çekme fonksiyonunu al
+  const products = useProductsStore((state) => state.products);
+  const isLoading = useProductsStore((state) => state.isLoading);
+  const fetchProductsData = useProductsStore((state) => state.fetchProductsData);
 
-  // Ürünü STORE'dan buluyoruz (artık admin'den eklenenler de burada)
-  const product: Product | undefined = useProductsStore((state) =>
-    state.products.find((p) => p.id === id)
-  );
+  // Veri çekme mantığı
+  useEffect(() => {
+    // Sadece ürünler yüklenmediyse ve yükleme devam etmiyorsa veriyi çek
+    if (products.length === 0 && !isLoading) {
+      fetchProductsData();
+    }
+  }, [products.length, isLoading, fetchProductsData]);
+
+
+  // State'ler
+  const [isAdding, setIsAdding] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  // Ürünü ID ile bulma
+  const product: Product | undefined = products.find((p) => String(p.id) === id);
+
+
+  // --- GUARD CLAUSE'lar ---
+
+  if (isLoading && products.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
+        <div className="text-xl text-slate-500">Ürünler yükleniyor...</div>
+      </div>
+    );
+  }
 
   if (!product) {
+    // Eğer ID geldiği halde ürün bulunamadıysa (ID kontrolü için id değişkeni kullanılır)
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
         <div className="bg-white px-8 py-6 rounded-2xl shadow-sm text-center space-y-3">
-          <h1 className="text-xl font-semibold">Product not found</h1>
+          <h1 className="text-xl font-semibold">Ürün bulunamadı (ID: {id})</h1>
           <button
             onClick={() => router.push("/shop")}
             className="px-4 py-2 text-sm rounded-full bg-emerald-700 text-white hover:bg-emerald-800"
           >
-            Back to products
+            Ürünlere geri dön
           </button>
         </div>
       </div>
     );
   }
 
-  // Galeri: varsa product.images, yoksa sadece product.image
+  // --- Sabitler ve Fonksiyonlar (product artık tanımlı) ---
+  
+  // Hata Giderici Düzeltme 3: Galeri oluşturma (Resimlerin /api/ proxy yolunu kullanması için)
   const gallery: string[] =
     product.images && product.images.length > 0
       ? product.images
-      : [product.image];
+          .map(img => `/api/${img.image}`) 
+      : [product.image]; 
 
-  const [selectedImage, setSelectedImage] = useState(gallery[0]);
-
-  const buttons = product.buttons ?? {
+  // Varsayılan düğme ayarları
+  const defaultButtons = {
     addToCart: true,
     wishlist: true,
     compareColor: true,
@@ -55,7 +87,58 @@ export default function ProductDetailPage({ params }: PageProps) {
     deliveryReturnInfo: true,
     share: true,
   };
+  const buttons = defaultButtons; 
 
+  // Seçili Görsel State'i (Başlangıçta işlenmiş ilk resmi kullan)
+  const [selectedImage, setSelectedImage] = useState(product.image); 
+  
+  // --- Sepete Ekleme Fonksiyonu ---
+  const handleAddToCart = async () => {
+    setIsAdding(true);
+    setMessage(null);
+
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setMessage("Sepete eklemek için lütfen önce giriş yapın.");
+      setIsAdding(false);
+      return;
+    }
+
+    const CART_ADD_URL = '/api/cart/add'; 
+
+    try {
+      const response = await fetch(CART_ADD_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, 
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity: 1, 
+        }),
+      });
+
+      if (response.ok) {
+        setMessage(`"${product.title}" sepete başarıyla eklendi! 🎉`);
+      } else {
+        const errorData = await response.json();
+        if (response.status === 401) {
+            setMessage("Oturumunuzun süresi doldu, lütfen tekrar giriş yapın.");
+        } else {
+            setMessage(errorData.detail || "Sepete eklenirken bir hata oluştu.");
+        }
+      }
+    } catch (err) {
+      setMessage("Ağ hatası: Sunucuya ulaşılamadı. CORS/Proxy ayarlarınızı kontrol edin.");
+    } finally {
+      setIsAdding(false);
+    }
+  };
+  // --- Fonksiyon Sonu ---
+
+
+  // 4. Ana Render (Return) Bloğu
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex justify-center py-10">
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-sm p-6 md:p-8 flex flex-col gap-8">
@@ -66,7 +149,7 @@ export default function ProductDetailPage({ params }: PageProps) {
             <div className="relative w-full aspect-[4/3] border rounded-2xl bg-[#fafafa] flex items-center justify-center">
               <Image
                 src={selectedImage}
-                alt={product.name}
+                alt={product.title} 
                 fill
                 unoptimized
                 className="object-contain p-6"
@@ -74,45 +157,47 @@ export default function ProductDetailPage({ params }: PageProps) {
               />
             </div>
 
-            <div className="mt-4 flex gap-3 overflow-x-auto">
-              {gallery.map((img) => (
-                <button
-                  key={img}
-                  onClick={() => setSelectedImage(img)}
-                  className={`relative h-20 w-20 flex-shrink-0 border rounded-2xl bg-[#fafafa] overflow-hidden transition ${
-                    selectedImage === img
-                      ? "ring-2 ring-emerald-600 border-transparent"
-                      : "hover:border-emerald-600/70"
-                  }`}
-                >
-                  {/* küçükler için de Image kullanıyoruz ama istersen <img> yapabilirsin */}
-                  <Image
-                    src={img}
-                    alt={product.name}
-                    fill
-                    unoptimized
-                    className="object-contain p-2"
-                  />
-                </button>
-              ))}
-            </div>
+            {/* THUMBNAILS */}
+            {gallery.length > 1 && (
+                <div className="mt-4 flex gap-3 overflow-x-auto">
+                    {gallery.map((img) => (
+                      <button
+                        key={img}
+                        onClick={() => setSelectedImage(img)}
+                        className={`relative h-20 w-20 flex-shrink-0 border rounded-2xl bg-[#fafafa] overflow-hidden transition ${
+                          selectedImage === img
+                            ? "ring-2 ring-emerald-600 border-transparent"
+                            : "hover:border-emerald-600/70"
+                        }`}
+                      >
+                        <Image
+                          src={img}
+                          alt={product.title} 
+                          fill
+                          unoptimized
+                          className="object-contain p-2"
+                        />
+                      </button>
+                    ))}
+                </div>
+            )}
           </div>
 
           {/* SAĞ: ÜRÜN BİLGİLERİ */}
           <div className="flex-1 flex flex-col gap-4">
             <h1 className="text-2xl md:text-3xl font-semibold leading-snug">
-              {product.name}
+              {product.title} 
             </h1>
 
             <p className="text-sm text-slate-500">
               {product.description ??
-                "High-quality product with modern design and reliable performance."}
+                "Bu ürün hakkında detaylı bir açıklama yakında eklenecektir."}
             </p>
 
             {/* Fiyat */}
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-semibold text-emerald-700">
-                {product.price.toFixed(2)} TM
+                {Number(product.price).toFixed(2)} TM
               </span>
               {product.oldPrice && (
                 <span className="text-base text-slate-400 line-through">
@@ -127,8 +212,27 @@ export default function ProductDetailPage({ params }: PageProps) {
               <span className="font-medium">{product.brand}</span>
             </div>
 
+            {/* Mesaj/Hata Gösterimi */}
+            {message && (
+                <div className={`p-3 rounded-xl text-sm ${message.includes('başarıyla') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    {message}
+                </div>
+            )}
+
+
             {/* Ana Butonlar */}
             <div className="mt-2 flex items-center gap-3">
+              
+              {/* SEPETE EKLE BUTONU */}
+              {buttons.addToCart && (
+                <button 
+                    onClick={handleAddToCart}
+                    disabled={isAdding}
+                    className="flex-1 px-6 py-3 text-base rounded-2xl bg-emerald-700 text-white font-semibold hover:bg-emerald-800 transition disabled:bg-slate-400 disabled:cursor-not-allowed"
+                >
+                    {isAdding ? "Ekleniyor..." : "Sepete Ekle"}
+                </button>
+              )}
 
               {buttons.wishlist && (
                 <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 hover:border-emerald-600 hover:text-emerald-600 transition">
@@ -136,7 +240,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 </button>
               )}
 
-              {buttons.wishlist && (
+              {buttons.askQuestion && ( 
                 <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 hover:border-emerald-600 hover:text-emerald-600 transition" >
                   <Phone className="w-5 h-5" />
                 </button>
@@ -147,23 +251,27 @@ export default function ProductDetailPage({ params }: PageProps) {
 
         {/* ALT BLOK */}
         <div className="border-t pt-6 flex flex-col md:flex-row gap-8 text-sm">
-          {/* Özellikler */}
+          {/* Açıklama */}
           <div className="flex-1">
-            {product.features && product.features.length > 0 && (
-              <>
-                <p className="font-semibold mb-2">
-                  {product.name}: Characteristics
-                </p>
-                <ul className="space-y-1 text-slate-600">
-                  {product.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-600" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
+              <h2 className="font-semibold mb-2 text-base">Ürün Açıklaması</h2>
+              <p className="text-slate-600 leading-relaxed">
+                  {product.description}
+              </p>
+          </div>
+          
+          {/* Ek Bilgiler */}
+          <div className="flex-1">
+            <p className="font-semibold mb-2">Ek Bilgiler</p>
+            <ul className="space-y-1 text-slate-600">
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                <span>Kategori: {product.category}</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                <span>Bölge: {product.place.join(', ')}</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>

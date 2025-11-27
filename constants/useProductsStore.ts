@@ -1,30 +1,53 @@
-// store/useProductsStore.ts
-"use client";
+// src/constants/useProductsStore.ts
 
-import { create } from "zustand";
-import { Product, products as initialProducts } from "@/constants/product";
+import { create } from 'zustand';
+import { Product } from "@/constants/product"; // Ürün tiplerini içe aktarın
+import { fetchProducts } from "@/services/productService"; // Servisi içe aktarın
 
-type ProductsState = {
+// ShopPage'in kullandığı diğer sabitler (örnek olarak eklendi)
+export const productCategories = ["Çokaýlar", "Halı", "Takı", "Giysi"];
+export const brands = ["Erkek", "Zenan", "Çaga"];
+export const place_names = ["Mary", "Aşgabat", "Lebap", "Balkan", "Daşoguz"];
+
+
+interface ProductsState {
   products: Product[];
-  addProduct: (product: Product) => void;
-  updateProduct: (id: string, data: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
-};
+  isLoading: boolean;
+  error: string | null;
+  fetchProductsData: () => Promise<void>;
+}
 
 export const useProductsStore = create<ProductsState>((set) => ({
-  products: initialProducts,
-  addProduct: (product) =>
-    set((state) => ({
-      products: [product, ...state.products],
-    })),
-  updateProduct: (id, data) =>
-    set((state) => ({
-      products: state.products.map((p) =>
-        p.id === id ? { ...p, ...data } : p
-      ),
-    })),
-  deleteProduct: (id) =>
-    set((state) => ({
-      products: state.products.filter((p) => p.id !== id),
-    })),
+  products: [],
+  isLoading: false,
+  error: null,
+
+  fetchProductsData: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = await fetchProducts();
+      set({ products: data, isLoading: false });
+    } catch (err) {
+      set({ 
+        isLoading: false, 
+        error: err instanceof Error ? err.message : "Veri çekilirken bir hata oluştu."
+      });
+    }
+  },
 }));
+
+// Uygulama yüklendiğinde veriyi çekmek için (eğer ShopPage'de çağrılmıyorsa)
+// İlk renderda veriyi çekmek için ShopPage içinde useLayoutEffect/useEffect kullanmak daha yaygındır.
+
+// Örnek: Eğer ShopPage içinde veriyi çekmiyorsanız, bu store'u kullanacak
+// bir Root component içinde çağırabilirsiniz.
+
+// ShopPage içinde kullanım:
+/*
+  const { products, isLoading, error, fetchProductsData } = useProductsStore();
+  useEffect(() => {
+    if (products.length === 0) { // Sadece bir kere çekmek için
+      fetchProductsData();
+    }
+  }, [fetchProductsData, products.length]);
+*/
