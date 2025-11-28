@@ -1,15 +1,16 @@
+// app/shop/[id]/page.tsx (veya bulunduğunuz dosya)
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-// Lütfen bu import yolunun projenizdeki Product tipinin yolunu doğru gösterdiğinden emin olun
-import { Product } from "@/constants/product"; 
-import { useProductsStore } from "@/constants/useProductsStore";
-import { Heart, Phone } from "lucide-react";
+import { Product } from "@/constants/product"; // Ürün tipi
+import { useProductsStore } from "@/constants/useProductsStore"; // Zustand Store
+import { Heart, Phone, Loader2 } from "lucide-react"; // Ikonlar
 
-// Hata Giderici Düzeltme 1: PageProps tanımı (params artık Promise değildir)
+// --- 1. Bileşen Props Tipi ---
 type PageProps = {
+  // params objesi Next.js tarafından Client Component'e props olarak gönderilir.
   params: { 
     id: string; // URL segmentinden gelen ürün ID'si
   }; 
@@ -17,50 +18,83 @@ type PageProps = {
 
 export default function ProductDetailPage({ params }: PageProps) {
   const router = useRouter();
-  // Hata Giderici Düzeltme 2: ID'yi doğrudan params'tan alıyoruz (use() kaldırıldı)
-  const { id } = params; 
+  const { id } = params; // ID'yi doğrudan params'tan alıyoruz.
 
-  // Zustand Store'dan ürünleri, yükleme durumunu ve veri çekme fonksiyonunu al
+  // --- 2. Zustand Store Erişimi ---
   const products = useProductsStore((state) => state.products);
   const isLoading = useProductsStore((state) => state.isLoading);
+  const error = useProductsStore((state) => state.error);
   const fetchProductsData = useProductsStore((state) => state.fetchProductsData);
 
-  // Veri çekme mantığı
+  // --- 3. Veri Çekme Etkisi (Sadece ürünler boşsa çeker) ---
   useEffect(() => {
-    // Sadece ürünler yüklenmediyse ve yükleme devam etmiyorsa veriyi çek
-    if (products.length === 0 && !isLoading) {
+    if (products.length === 0 && !isLoading && !error) {
       fetchProductsData();
     }
-  }, [products.length, isLoading, fetchProductsData]);
+  }, [products.length, isLoading, error, fetchProductsData]);
 
+  // --- 4. Ürünü ID ile Bulma ---
+  // Ürünler yüklendikten sonra find işlemini useMemo ile optimize ediyoruz.
+  const product: Product | undefined = useMemo(
+    () => products.find((p) => String(p.id) === id),
+    [products, id]
+  );
 
-  // State'ler
+  // --- 5. State'ler ---
   const [isAdding, setIsAdding] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  
+  // --- 6. Görsel Galeri Oluşturma ---
+  // Product'ın kendisi yüklendikten sonra galeriyi hazırlıyoruz.
+  const gallery: string[] = useMemo(() => {
+    if (!product) return [];
+    
+    // API'den gelen çoklu görselleri (image yolu /api/ ile proxy edilmiş) listeler
+    const multiImages = 
+      product.images && product.images.length > 0 
+        ? product.images.map(img => `/api/${img.image}`) 
+        : [];
+    
+    // product.image zaten proxy edilmiş tek görseli içeriyor olmalı
+    return multiImages.length > 0 ? multiImages : [product.image];
+  }, [product]);
 
-  // Ürünü ID ile bulma
-  const product: Product | undefined = products.find((p) => String(p.id) === id);
-
-
+  // Seçili Görsel State'i (Başlangıçta ilk görseli kullan)
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined); 
+  
+  // Ürün yüklendiğinde seçili görseli ayarla
+  useEffect(() => {
+    if (product && gallery.length > 0 && selectedImage === undefined) {
+      setSelectedImage(gallery[0]);
+    }
+  }, [product, gallery, selectedImage]);
+  
   // --- GUARD CLAUSE'lar ---
 
-  if (isLoading && products.length === 0) {
+  // Yükleme durumu
+  if (isLoading || selectedImage === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
-        <div className="text-xl text-slate-500">Ürünler yükleniyor...</div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f5f5f5]">
+        <Loader2 className="w-8 h-8 mr-3 animate-spin text-emerald-600" />
+        <div className="text-lg text-slate-500 mt-2">Ürün yükleniyor...</div>
       </div>
     );
   }
 
+  // Ürün bulunamadı durumu (ID dolu ama API'den gelmedi)
   if (!product) {
-    // Eğer ID geldiği halde ürün bulunamadıysa (ID kontrolü için id değişkeni kullanılır)
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
-        <div className="bg-white px-8 py-6 rounded-2xl shadow-sm text-center space-y-3">
-          <h1 className="text-xl font-semibold">Ürün bulunamadı (ID: {id})</h1>
+        <div className="bg-white px-8 py-6 rounded-2xl shadow-lg text-center space-y-4">
+          <h1 className="text-xl font-semibold text-red-600">
+            Ürün bulunamadı (ID: {id})
+          </h1>
+          <p className="text-sm text-slate-500">
+             Lütfen URL'yi kontrol edin veya liste sayfasına geri dönün.
+          </p>
           <button
             onClick={() => router.push("/shop")}
-            className="px-4 py-2 text-sm rounded-full bg-emerald-700 text-white hover:bg-emerald-800"
+            className="px-6 py-2 text-sm rounded-full bg-emerald-700 text-white hover:bg-emerald-800 transition"
           >
             Ürünlere geri dön
           </button>
@@ -69,29 +103,14 @@ export default function ProductDetailPage({ params }: PageProps) {
     );
   }
 
-  // --- Sabitler ve Fonksiyonlar (product artık tanımlı) ---
-  
-  // Hata Giderici Düzeltme 3: Galeri oluşturma (Resimlerin /api/ proxy yolunu kullanması için)
-  const gallery: string[] =
-    product.images && product.images.length > 0
-      ? product.images
-          .map(img => `/api/${img.image}`) 
-      : [product.image]; 
-
   // Varsayılan düğme ayarları
   const defaultButtons = {
     addToCart: true,
     wishlist: true,
-    compareColor: true,
     askQuestion: true,
-    deliveryReturnInfo: true,
-    share: true,
   };
   const buttons = defaultButtons; 
 
-  // Seçili Görsel State'i (Başlangıçta işlenmiş ilk resmi kullan)
-  const [selectedImage, setSelectedImage] = useState(product.image); 
-  
   // --- Sepete Ekleme Fonksiyonu ---
   const handleAddToCart = async () => {
     setIsAdding(true);
@@ -104,6 +123,7 @@ export default function ProductDetailPage({ params }: PageProps) {
       return;
     }
 
+    // next.config.ts kuralı sayesinde burası /api/cart/add olarak kalabilir
     const CART_ADD_URL = '/api/cart/add'; 
 
     try {
@@ -126,11 +146,11 @@ export default function ProductDetailPage({ params }: PageProps) {
         if (response.status === 401) {
             setMessage("Oturumunuzun süresi doldu, lütfen tekrar giriş yapın.");
         } else {
-            setMessage(errorData.detail || "Sepete eklenirken bir hata oluştu.");
+            setMessage(errorData.detail || `Sepete eklenirken bir hata oluştu: ${response.status}`);
         }
       }
     } catch (err) {
-      setMessage("Ağ hatası: Sunucuya ulaşılamadı. CORS/Proxy ayarlarınızı kontrol edin.");
+      setMessage("Ağ hatası: Sunucuya ulaşılamadı. Lütfen internet bağlantınızı kontrol edin.");
     } finally {
       setIsAdding(false);
     }
@@ -138,17 +158,20 @@ export default function ProductDetailPage({ params }: PageProps) {
   // --- Fonksiyon Sonu ---
 
 
-  // 4. Ana Render (Return) Bloğu
+  // --- 7. Ana Render Bloğu ---
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex justify-center py-10">
-      <div className="w-full max-w-6xl bg-white rounded-3xl shadow-sm p-6 md:p-8 flex flex-col gap-8">
-        {/* ÜST BLOK */}
+      <div className="w-full max-w-6xl bg-white rounded-3xl shadow-lg p-6 md:p-8 flex flex-col gap-8">
+        
+        {/* ÜST BLOK: Görsel ve Bilgiler */}
         <div className="flex flex-col lg:flex-row gap-10">
+          
           {/* SOL: ANA GÖRSEL + THUMBNAILS */}
-          <div className="flex-1">
-            <div className="relative w-full aspect-[4/3] border rounded-2xl bg-[#fafafa] flex items-center justify-center">
+          <div className="flex-1 lg:w-1/2">
+            <div className="relative w-full aspect-[4/3] border border-slate-200 rounded-2xl bg-[#fafafa] flex items-center justify-center">
               <Image
-                src={selectedImage}
+                // selectedImage artık asla undefined olmamalı
+                src={selectedImage!} 
                 alt={product.title} 
                 fill
                 unoptimized
@@ -184,92 +207,95 @@ export default function ProductDetailPage({ params }: PageProps) {
           </div>
 
           {/* SAĞ: ÜRÜN BİLGİLERİ */}
-          <div className="flex-1 flex flex-col gap-4">
-            <h1 className="text-2xl md:text-3xl font-semibold leading-snug">
+          <div className="flex-1 lg:w-1/2 flex flex-col gap-4">
+            <h1 className="text-2xl md:text-3xl font-bold leading-snug text-slate-900">
               {product.title} 
             </h1>
 
-            <p className="text-sm text-slate-500">
-              {product.description ??
-                "Bu ürün hakkında detaylı bir açıklama yakında eklenecektir."}
+            <p className="text-sm text-slate-600">
+              {product.description ?? "Bu ürün hakkında detaylı bir açıklama yakında eklenecektir."}
             </p>
 
             {/* Fiyat */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-semibold text-emerald-700">
+            <div className="flex items-baseline gap-3 pt-2 border-t border-slate-100">
+              <span className="text-4xl font-extrabold text-emerald-700">
                 {Number(product.price).toFixed(2)} TM
               </span>
               {product.oldPrice && (
-                <span className="text-base text-slate-400 line-through">
+                <span className="text-lg text-slate-400 line-through">
                   {product.oldPrice.toFixed(2)} TM
                 </span>
               )}
             </div>
 
-            {/* Brand / stok */}
-            <div className="text-xs text-slate-500">
-              Jynsy: {" "}
-              <span className="font-medium">{product.brand}</span>
-            </div>
-
             {/* Mesaj/Hata Gösterimi */}
             {message && (
-                <div className={`p-3 rounded-xl text-sm ${message.includes('başarıyla') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                <div className={`p-3 rounded-xl text-sm font-medium ${message.includes('başarıyla') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                     {message}
                 </div>
             )}
 
-
             {/* Ana Butonlar */}
-            <div className="mt-2 flex items-center gap-3">
+            <div className="mt-4 flex items-center gap-3">
               
               {/* SEPETE EKLE BUTONU */}
               {buttons.addToCart && (
                 <button 
                     onClick={handleAddToCart}
                     disabled={isAdding}
-                    className="flex-1 px-6 py-3 text-base rounded-2xl bg-emerald-700 text-white font-semibold hover:bg-emerald-800 transition disabled:bg-slate-400 disabled:cursor-not-allowed"
+                    className="flex-1 px-6 py-3 text-lg rounded-2xl bg-emerald-700 text-white font-semibold shadow-lg shadow-emerald-700/30 hover:bg-emerald-800 transition disabled:bg-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
                 >
-                    {isAdding ? "Ekleniyor..." : "Sepete Ekle"}
+                    {isAdding ? (
+                        <span className="flex items-center justify-center">
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            Ekleniyor...
+                        </span>
+                    ) : "Sepete Ekle"}
                 </button>
               )}
 
               {buttons.wishlist && (
-                <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 hover:border-emerald-600 hover:text-emerald-600 transition">
-                  <Heart className="w-5 h-5" />
+                <button className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-300 hover:border-red-500 hover:text-red-500 transition">
+                  <Heart className="w-6 h-6" />
                 </button>
               )}
 
               {buttons.askQuestion && ( 
-                <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 hover:border-emerald-600 hover:text-emerald-600 transition" >
-                  <Phone className="w-5 h-5" />
+                <button className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-300 hover:border-emerald-600 hover:text-emerald-600 transition" >
+                  <Phone className="w-6 h-6" />
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* ALT BLOK */}
-        <div className="border-t pt-6 flex flex-col md:flex-row gap-8 text-sm">
+        <hr className="my-4" />
+
+        {/* ALT BLOK: Detaylar */}
+        <div className="flex flex-col md:flex-row gap-10 text-sm">
           {/* Açıklama */}
-          <div className="flex-1">
-              <h2 className="font-semibold mb-2 text-base">Ürün Açıklaması</h2>
+          <div className="md:w-2/3">
+              <h2 className="font-bold text-lg mb-3 border-b pb-1 text-slate-800">Ürün Açıklaması</h2>
               <p className="text-slate-600 leading-relaxed">
                   {product.description}
               </p>
           </div>
           
           {/* Ek Bilgiler */}
-          <div className="flex-1">
-            <p className="font-semibold mb-2">Ek Bilgiler</p>
-            <ul className="space-y-1 text-slate-600">
-              <li className="flex items-start gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-600" />
-                <span>Kategori: {product.category}</span>
+          <div className="md:w-1/3">
+            <h2 className="font-bold text-lg mb-3 border-b pb-1 text-slate-800">Ek Bilgiler</h2>
+            <ul className="space-y-2 text-slate-600">
+              <li className="flex justify-between border-b border-dashed pb-1">
+                <span className="font-medium text-slate-700">Kategori:</span>
+                <span>{product.category}</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-600" />
-                <span>Bölge: {product.place.join(', ')}</span>
+              <li className="flex justify-between border-b border-dashed pb-1">
+                <span className="font-medium text-slate-700">Marka:</span>
+                <span>{product.brand}</span>
+              </li>
+              <li className="flex justify-between border-b border-dashed pb-1">
+                <span className="font-medium text-slate-700">Bölge:</span>
+                <span>{product.place.join(', ')}</span>
               </li>
             </ul>
           </div>
